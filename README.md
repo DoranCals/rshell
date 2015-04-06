@@ -8,4 +8,3 @@ if true then
 	print("Hello World!")
 end
 ```
-
