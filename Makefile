@@ -1,24 +1,13 @@
 VPATH = src
-CFLAGS = -ansi -pedantic -Wall -Werror
-#objects = $(addprefix obj/, main.o file.o)
-objects = $(addprefix obj/, main.o)
+FLAGS = -ansi -pedantic -Wall -Werror
 
-bin/program: $(objects) | bin
-	g++ -o $@ $(objects)
+all: rshell
 
-obj/%.o: %.cpp
-	g++ $(CFLAGS) -c -o $@ $<
-#obj/main.o: file.h
-obj/main.o:
-
-$(objects): | obj
-
-bin:
+rshell:
+	rm -rf bin
 	mkdir bin
-
-obj:
-	mkdir obj
+	g++ $(FLAGS) -std=c++11 -o bin/rshell src/main.cpp
 
 clean:
-	rm -rf obj bin
+	rm -rf bin
 
