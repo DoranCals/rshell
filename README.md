@@ -10,7 +10,9 @@ Enter multiple commands on a single line by using these connectors:
 ; always executes the right side.
 # never executes the right side (thus making it a comment).
 
-Any connector without a command on each side of it will result in a syntax error.
+If a line starts with a connector, the exit status from the previous line will be used.
+If a line ends with a connector, the connector will be ignored.
+If multiple connectors are adjacent to each other, undefined behaviour will result.
 Connectors are evaulated left to right.
 
 
