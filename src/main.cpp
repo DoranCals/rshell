@@ -40,7 +40,10 @@ int runProcess(string lineInput)
 		for (auto i = tokCommand.begin(); i != tokCommand.end(); i++)
 		{
 			argv[j] = new char[i->size()+1];
-			argv[j] = (char*)i->c_str();
+			for (unsigned k = 0; k < i->size(); k++)
+			{
+				argv[j][k] = i->c_str()[k];
+			}
 			argv[j][i->size()] = 0;
 			j++;
 		}
@@ -97,6 +100,11 @@ int main(int argc, char** argv)
 
 		string thisCommand = "";
 
+		if (cin.eof() )
+		{
+			cout << "^D" << endl;
+			exit(0);
+		}
 		getline(cin, lineInput);
 		lineInput += " ;";
 

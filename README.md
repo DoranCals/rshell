@@ -17,6 +17,5 @@ If multiple connectors are adjacent to each other, undefined behavior will resul
 Connectors are evaluated left to right.
 
 ###KNOWN ISSUES
-The shell will freak out on invalid commands, arguments, or connectors. (A memory leak would occur otherwise.)
-Ctrl-D will exit the shell with an error.
-
+Ctrl-D will attempt to run the current command before exiting.
+Arguments cannot have connectors, quotes, or other special characters in them.
