@@ -1,0 +1,61 @@
+Script started on Sun 19 Apr 2015 11:57:47 AM PDT
+
+# Compile the program
+[s%%%%%%%%%%[u[0;32mdcals001[0;36m@[0;32mcs100[0;36m:[0;32m~/CS100/rshell[0;95m (exec) [0;36m$[0m make
+rm -rf bin
+mkdir bin
+g++ -ansi -pedantic -Wall -Werror -std=c++11 -o bin/rshell src/main.cpp
+[s%%%%%%%%%%[u[0;32mdcals001[0;36m@[0;32mcs100[0;36m:[0;32m~/CS100/rshell[0;95m (exec) [0;36m$[0m binr[K/rshell 
+
+# Simple commands can be executed
+dcals001@hammer.cs.ucr.edu$ echo Run a single command
+Run a single command
+dcals001@hammer.cs.ucr.edu$       echo       Lots of spaces                
+Lots of spaces
+dcals001@hammer.cs.ucr.edu$ echo -eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee -eeeeeeeeeeeeeeeeeeeeeeeeeeee -eee -eeeeeeeeeeee Lots of arguments
+Lots of arguments
+
+# Semicolon and sharp work as in bash
+dcals001@hammer.cs.ucr.edu$ echo -n Semi ; echo colon
+Semicolon
+dcals001@hammer.cs.ucr.edu$ echo Comments # echo FAILED
+Comments
+
+# && and || connectors can be used
+dcals001@hammer.cs.ucr.edu$ true && echo AND connector
+AND connector
+dcals001@hammer.cs.ucr.edu$ false && echo AND connector FAILED
+dcals001@hammer.cs.ucr.edu$ true || echo OR connector FAILED
+dcals001@hammer.cs.ucr.edu$ false || echo OR connector
+OR connector
+dcals001@hammer.cs.ucr.edu$ echo Lots && echo of && false || echo connectors || echo "FAILED"
+Lots
+of
+connectors
+dcals001@hammer.cs.ucr.edu$ ls&&false||ls&&false||true&&echo Squished connectors
+bin  LICENSE  Makefile	README.md  src	tests
+bin  LICENSE  Makefile	README.md  src	tests
+Squished connectors
+
+# Arbitrary commands are allowed, including rshell itself
+dcals001@hammer.cs.ucr.edu$ bin/rshell
+dcals001@hammer.cs.ucr.edu$ echo Rshell within Rshell
+Rshell within Rshell
+dcals001@hammer.cs.ucr.edu$ exit
+
+# File operations using basic GNU commands
+dcals001@hammer.cs.ucr.edu$ touch something && echo Arbitrary
+Arbitrary
+dcals001@hammer.cs.ucr.edu$ cp something somethingelse && cat something && echo commands
+commands
+dcals001@hammer.cs.ucr.edu$ rm something && echo are
+are
+dcals001@hammer.cs.ucr.edu$ rm somethingelse && echo allowed
+allowed
+
+# Shell exits cleanly when "exit" is invoked
+dcals001@hammer.cs.ucr.edu$ exit
+[s%%%%%%%%%%[u[0;32mdcals001[0;36m@[0;32mcs100[0;36m:[0;32m~/CS100/rshell[0;95m (exec) [0;36m$[0m exit
+
+Script done on Sun 19 Apr 2015 11:59:41 AM PDT
+
