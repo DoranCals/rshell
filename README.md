@@ -1,11 +1,7 @@
 # rshell
 ## a simple command shell
 
-Rshell executes commands read from standard input.
-
-Type any command, and Rshell will execute the corresponding program.
-
-Type "exit" to quit the shell.
+Rshell executes commands read from standard input. Type any command, and Rshell will execute the corresponding program. Type "exit" to quit the shell.
 
 
 Enter multiple commands on a single line by using these connectors:
@@ -19,13 +15,9 @@ Enter multiple commands on a single line by using these connectors:
 \# never executes the right side (thus making it a comment).
 
 
-Connectors at the start of a line will proceed as if the left side succeeded.
-
-Connectors at the end of a line will be ignored.
+Connectors at the start of a line will proceed as if the left side succeeded, and connectors at the end of a line will be ignored. Connectors are evaluated left to right.
 
 If multiple connectors are adjacent to each other, undefined behavior will result.
-
-Connectors are evaluated left to right.
 
 
 ###KNOWN ISSUES
