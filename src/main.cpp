@@ -78,6 +78,7 @@ int runProcess(string lineInput)
 		int p = wait(&status);
 		if (p == -1)
 		{
+			perror("wait");
 			return 1;
 		}
 		return status;
