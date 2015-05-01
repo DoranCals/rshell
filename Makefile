@@ -1,12 +1,15 @@
 VPATH = src
-FLAGS = -ansi -pedantic -Wall -Werror
+FLAGS = -ansi -pedantic -Wall -Werror -std=c++11
 
-all: rshell
+all: rshell ls
 
 rshell:
-	rm -rf bin
-	mkdir bin
-	g++ $(FLAGS) -std=c++11 -o bin/rshell src/main.cpp
+	mkdir -p bin
+	g++ $(FLAGS) -o bin/rshell src/main.cpp
+
+ls:
+	mkdir -p bin
+	g++ $(FLAGS) -o bin/ls src/ls.cpp
 
 clean:
 	rm -rf bin
