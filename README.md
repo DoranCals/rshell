@@ -44,5 +44,5 @@ ls lists information about one or more files or directories, using the current w
 
 ### KNOWN ISSUES
 
-ls does not actually list files yet.
+ls currently prints files in a confusing manner.
 
