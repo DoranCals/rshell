@@ -38,15 +38,18 @@ If -l is not given, ls will arrange the files in rows and columns, left-to-right
 #### ARGUMENTS
 
 -a
-		Also list files starting with .
 
-		These dotfiles will come before all other files.
+Also list files starting with .
+
+These dotfiles will come before all other files.
 
 -l
-		List more detailed information about each file.
+				
+List more detailed information about each file.
 
 -R
-		List all subdirectories recursively.
+
+List all subdirectories recursively.
 
 
 ### KNOWN ISSUES
