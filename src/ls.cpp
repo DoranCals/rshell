@@ -23,56 +23,60 @@ char LSF_LSTALL = 1; // include dotfiles
 char LSF_DETAIL = 4; // more information about each file
 char LSF_RECURS = 8; // recurse through subdirs
 
-// Compares two C-style strings without case-sensitivity
+
+// Compares two char arrays, disregarding case.
 // For use with std::sort()
-bool sortCharArrays(const char* charArray1, const char* charArray2)
+bool sortCharArray(const char* c, const char* d)
 {
-	char* a = new char[strlen(charArray1) + 1];
-	char* b = new char[strlen(charArray2) + 1];
+	char* a = new char[strlen(c) + 1];
+	char* b = new char[strlen(d) + 1];
 	bool result;
 
-	strcpy(a, charArray1);
-	strcpy(b, charArray2);
-
+	strcpy(a, c);
+	strcpy(b, d);
 	for (unsigned i = 0; i < strlen(a); i++)
 		a[i] = tolower(a[i]);
 	for (unsigned i = 0; i < strlen(b); i++)
 		b[i] = tolower(b[i]);
 
-	result = (strcmp(a, b) < 0);
+	result = strcmp(a, b) < 0;
 	delete[] a;
 	delete[] b;
 	return result;
 }
 
-
 // Prints the given filenames to stdout.
-void listFiles(vector<char*> v)
+void listFiles(vector<char*> v, int w)
 {
+	int currentWidth = 0;
 	for (unsigned i = 0; i < v.size(); i++)
+	{
+		currentWidth += strlen(basename(v.at(i) ) );
+		if (currentWidth > w)
+		{
+			cout << endl;
+			currentWidth = strlen(basename(v.at(i) ) );
+		}
 		printf("%s  ", basename(v.at(i) ) );
+	}
 	cout << endl;
 	return;
 }
 
 
 // Prints the given filenames and metadata to stdout.
-void listFilesMetadata(vector<char*> v)
-{
-
-}
-
+void listFilesMetadata(vector<char*> v);
+#include "listFilesMetadata.h"
 
 int main(int argc, char** argv)
 {
-	char flags = 0;
-	char fileName[PATH_MAX]; // Don't allocate new memory for filenames
-	vector<char*> fileArgs;
-	vector<char*> filesInDir;
+	char flags = 0; // argument flags
+	vector<char*> fileArgs; // arguments that aren't flags
+	vector<char*> filesInDir; // filenames to look at later
 
 	for (int i = 1; i < argc; i++)
 	{
-		if (argv[i][0] == '-') // it's a flag, not a file argument
+		if (argv[i][0] == '-') // it's a flag, not a file
 		{
 			for (unsigned j = 1; j < strlen(argv[i]); j++)
 			{
@@ -84,13 +88,13 @@ int main(int argc, char** argv)
 					flags = flags|LSF_RECURS;
 			}
 		}
-		else
+		else // it's a file
 			fileArgs.push_back(argv[i]);
 	}
 	if (fileArgs.empty() )
 		fileArgs.push_back( (char*)"."); // by default, list the working directory
 
-	DIR* thisDir = 0;
+	DIR* thisDir = 0; // look at the current directory
 	for (unsigned i = 0; i < fileArgs.size(); i++)
 	{
 		thisDir = opendir(fileArgs.at(i) );
@@ -99,43 +103,43 @@ int main(int argc, char** argv)
 			perror("opendir");
 			return errno;
 		}
-		dirent* thisFile = readdir(thisDir);
-		if (errno)
+		dirent* thisFile; // look at each file in the directory
+		while ( (thisFile = readdir(thisDir) ) )
 		{
-			perror("readdir");
-			return errno;
-		}
-		while (thisFile)
-		{
-			if ( (flags & LSF_LSTALL) or (thisFile->d_name[0] != '.') )
-			{
-				//strcpy(fileName, fileArgs.at(i) );
-				//strcat(fileName, "/");
-				strcat(fileName, thisFile->d_name);
-				filesInDir.push_back(fileName);	
-			}
-			thisFile = readdir(thisDir);
 			if (errno)
 			{
 				perror("readdir");
 				return errno;
 			}
+
+			// If file is a dotfile AND -a wasn't given, skip it
+			if ( (flags & LSF_LSTALL) or (thisFile->d_name[0] != '.') )
+			{
+				char* fileName = new char[PATH_MAX];
+				strcpy(fileName, fileArgs.at(i) );
+				strcat(fileName, "/");
+				strcat(fileName, thisFile->d_name);
+				filesInDir.push_back(fileName);	
+			}
 		}
 		
-		// Alphabetical order is the reasonable thing to do
-		sort(filesInDir.begin(), filesInDir.end(), sortCharArrays);
-
 		// Time to actually display the information
+		sort(filesInDir.begin(), filesInDir.end(), sortCharArray);
 		if ( (fileArgs.size() > 1) or (flags & LSF_RECURS) )
 			printf("%s:\n", fileArgs.at(i));
 
 		if (flags & LSF_DETAIL)
 			listFilesMetadata(filesInDir);
 		else
-			listFiles(filesInDir);
+			listFiles(filesInDir, 80);
 
 		if ( (fileArgs.size() > 1) and (i < fileArgs.size() - 1) )
 			cout << endl;
+
+		// Cleanup
+		for (unsigned i = 0; i < filesInDir.size(); i++)
+			delete[] filesInDir.at(i);
+		filesInDir.clear();
 
 		closedir(thisDir);
 		if (errno)

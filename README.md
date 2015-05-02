@@ -30,19 +30,21 @@ Arguments cannot have connectors, quotes, or other special characters in them.
 ## ls
 ### list files in a directory
 
-ls lists information about one or more files or directories, using the current working directory if none are specified. By default, ls ignores files starting with .
+ls lists information about one or more files or directories, using the current working directory if none are specified. ls lists files in non-case-sensitive alphabetical order, and normally ignores files starting with '.'.
 
 
 #### ARGUMENTS
 
--a		Also list files starting with .
+-a		Also list files starting with '.'.
+		These dotfiles will come after all other files.
 
--l		List more detailed information about each file
+-l		List more detailed information about each file.
 
--R		Recurse through all subdirectories.
+-R		List all subdirectories recursively.
 
 
 ### KNOWN ISSUES
 
-ls currently prints files in a confusing manner.
+-R is non-functional.
+Unlike GNU ls, this program will not print files in color.
 
