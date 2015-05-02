@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <pwd.h>
+#include <grp.h>
 #include <errno.h>
 #include <time.h>
 #include <dirent.h>
@@ -46,18 +47,21 @@ bool sortCharArray(const char* c, const char* d)
 }
 
 // Prints the given filenames to stdout.
-void listFiles(vector<char*> v, int w)
+void listFiles(vector<char*> v, unsigned cw, int tw)
 {
 	int currentWidth = 0;
 	for (unsigned i = 0; i < v.size(); i++)
 	{
-		currentWidth += strlen(basename(v.at(i) ) );
-		if (currentWidth > w)
+		currentWidth += cw;
+		if (currentWidth > tw)
 		{
 			cout << endl;
-			currentWidth = strlen(basename(v.at(i) ) );
+			currentWidth = cw;
 		}
+
 		printf("%s  ", basename(v.at(i) ) );
+		for (unsigned j = 2; j < cw - strlen(basename(v.at(i) ) ); j++)
+			cout << ' '; // Print spaces to create a nice column
 	}
 	cout << endl;
 	return;
@@ -68,11 +72,13 @@ void listFiles(vector<char*> v, int w)
 void listFilesMetadata(vector<char*> v);
 #include "listFilesMetadata.h"
 
-int main(int argc, char** argv)
+// not ::main because it needs recursion
+int lsMain(int argc, char** argv)
 {
 	char flags = 0; // argument flags
 	vector<char*> fileArgs; // arguments that aren't flags
 	vector<char*> filesInDir; // filenames to look at later
+	unsigned columnWidth = 0; // if -l isn't given, display the files in columns
 
 	for (int i = 1; i < argc; i++)
 	{
@@ -97,6 +103,23 @@ int main(int argc, char** argv)
 	DIR* thisDir = 0; // look at the current directory
 	for (unsigned i = 0; i < fileArgs.size(); i++)
 	{
+		struct stat fileStat;
+		stat(fileArgs.at(i), &fileStat);
+		if (errno)
+		{
+			perror("stat");
+			return errno;
+		}
+		if (not (fileStat.st_mode & S_IFDIR) )
+		{
+			int oneFile = open(fileArgs.at(i), O_RDONLY|O_NONBLOCK);
+			if (oneFile == -1)
+				perror(fileArgs.at(i) );
+			else
+				printf("%s\n", fileArgs.at(i) );
+			continue;
+		}
+
 		thisDir = opendir(fileArgs.at(i) );
 		if (!thisDir)
 		{
@@ -120,6 +143,8 @@ int main(int argc, char** argv)
 				strcat(fileName, "/");
 				strcat(fileName, thisFile->d_name);
 				filesInDir.push_back(fileName);	
+				if (strlen(fileName) > columnWidth)
+					columnWidth = strlen(fileName);
 			}
 		}
 		
@@ -131,10 +156,49 @@ int main(int argc, char** argv)
 		if (flags & LSF_DETAIL)
 			listFilesMetadata(filesInDir);
 		else
-			listFiles(filesInDir, 80);
+			listFiles(filesInDir, columnWidth, 80);
 
 		if ( (fileArgs.size() > 1) and (i < fileArgs.size() - 1) )
 			cout << endl;
+
+		// If -R is given, recurse through all subdirectories
+		if (flags & LSF_RECURS)
+		{
+			cout << endl;
+			for (unsigned i = 0; i < filesInDir.size(); i++)
+			{
+				struct stat recursStat;
+				stat(filesInDir.at(i), &recursStat);
+				if (errno)
+				{
+					perror("stat");
+					return errno;
+				}
+				if ( (strcmp(filesInDir.at(i), ".") != 0)
+					and (strcmp(filesInDir.at(i), "..") != 0)
+					and (recursStat.st_mode & S_IFDIR) )
+				{
+					char recursMain[8];
+					strcpy(recursMain, "ls");
+	
+					char recursFlags[8];
+					strcpy(recursFlags, "-RRR");
+					if (flags & LSF_LSTALL)
+						recursFlags[1] = 'a';
+					if (flags & LSF_DETAIL)
+						recursFlags[2] = 'l';
+	
+					char recursFile[PATH_MAX];
+					strcpy(recursFile, filesInDir.at(i) );
+					
+					char* recursArgv[3];
+					recursArgv[0] = recursMain;
+					recursArgv[1] = recursFlags;
+					recursArgv[2] = recursFile;
+					lsMain(3, recursArgv);
+				}
+			}
+		}
 
 		// Cleanup
 		for (unsigned i = 0; i < filesInDir.size(); i++)
@@ -150,4 +214,9 @@ int main(int argc, char** argv)
 	}
 
 	return 0;
+}
+
+int main(int argc, char** argv)
+{
+	return lsMain(argc, argv);
 }

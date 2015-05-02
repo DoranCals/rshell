@@ -1,5 +1,5 @@
-# rshell
-### a simple command shell
+## rshell
+#### a simple command shell
 
 Rshell executes commands read from standard input. Type any command, and Rshell will execute the corresponding program. Type "exit" to quit the shell.
 
@@ -28,23 +28,28 @@ Ctrl-D will attempt to run the current command before exiting, and may take two 
 Arguments cannot have connectors, quotes, or other special characters in them.
 
 ## ls
-### list files in a directory
+#### list files in a directory
 
-ls lists information about one or more files or directories, using the current working directory if none are specified. ls lists files in non-case-sensitive alphabetical order, and normally ignores files starting with '.'.
+ls lists information about one or more files or directories, using the current working directory if none are specified.
+
+If -l is not given, ls will arrange the files in rows and columns, left-to-right then top-to-bottom. ls lists files in non-case-sensitive alphabetical order, and normally ignores files starting with .
 
 
 #### ARGUMENTS
 
--a		Also list files starting with '.'.
-		These dotfiles will come after all other files.
+-a
+		Also list files starting with .
 
--l		List more detailed information about each file.
+		These dotfiles will come before all other files.
 
--R		List all subdirectories recursively.
+-l
+		List more detailed information about each file.
+
+-R
+		List all subdirectories recursively.
 
 
 ### KNOWN ISSUES
 
--R is non-functional.
 Unlike GNU ls, this program will not print files in color.
 

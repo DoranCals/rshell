@@ -8,6 +8,7 @@
 #include <time.h>
 #include <errno.h>
 #include <pwd.h>
+#include <grp.h>
 #include <math.h>
 #include <libgen.h>
 
@@ -31,7 +32,7 @@ void listFilesMetadata(vector<char*> v)
 		if (errno)
 		{
 			perror("stat");
-			exit(errno);
+			exit(1);
 		}
 		blocks += fileStat.st_blocks;
 		// how many digits is the largest file's size?
@@ -46,7 +47,7 @@ void listFilesMetadata(vector<char*> v)
 		if (errno)
 		{
 			perror("stat");
-			exit(errno);
+			exit(1);
 		}
 
 		// File characteristics
@@ -85,13 +86,20 @@ void listFilesMetadata(vector<char*> v)
 
 		// Owner and group
 		passwd* fileOwner;
+		group* fileGroup;
 		fileOwner = getpwuid(fileStat.st_uid);
 		if (errno)
 		{
 			perror("getpwuid");
-			exit(errno);
+			exit(1);
 		}
-		printf("%s %s ", fileOwner->pw_name, fileOwner->pw_name);
+		fileGroup = getgrgid(fileStat.st_gid);
+		if (errno)
+		{
+			perror("getgrgid");
+			exit(1);
+		}
+		printf("%s %s ", fileOwner->pw_name, fileGroup->gr_name);
 
 		// Filesize
 		printf("%*li ", fileSizeColumn, fileStat.st_size);
