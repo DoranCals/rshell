@@ -44,7 +44,7 @@ int rmMain(int argc, char** argv)
         if (errno) {
            perror("stat");
            errno=0;
-           continue;
+           exit(1);
         }
         if (s.st_mode&S_IFDIR) {
             if (flag_r) {
@@ -52,7 +52,7 @@ int rmMain(int argc, char** argv)
                 if (dirp==NULL) {
                     perror("opendir");
                     errno=0;
-                    continue;
+                    exit(1);
                 }
                 struct dirent *f;
                 while ((f=readdir(dirp)))
@@ -78,13 +78,13 @@ int rmMain(int argc, char** argv)
                 if (errno) {
                     perror("closedir");
                     errno=0;
-                    continue;
+                    exit(1);
                 }
                 rmdir(v.at(i));
                 if (errno) {
                     perror("rmdir");
                     errno=0;
-                    continue;
+                    exit(1);
                 }
             }
             else {
@@ -94,7 +94,7 @@ int rmMain(int argc, char** argv)
         else if (-1==unlink(v.at(i))) {
             perror("unlink");
             errno=0;
-            continue;
+            exit(1);
         }
     }
 	return 0;
