@@ -80,12 +80,18 @@ int rmMain(int argc, char** argv)
                     errno=0;
                     continue;
                 }
+                rmdir(v.at(i));
+                if (errno) {
+                    perror("rmdir");
+                    errno=0;
+                    continue;
+                }
             }
             else {
                 cerr<<v.at(i)<< ": Is a directory but -r not set\n";
             }
         }
-        if (-1==unlink(v.at(i))) {
+        else if (-1==unlink(v.at(i))) {
             perror("unlink");
             errno=0;
             continue;
