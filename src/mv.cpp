@@ -27,34 +27,27 @@ int mvMain(int argc, char** argv)
         return 1;
     }
     struct stat s2;
-    stat(argv[2],&s2);
-    if (errno) {
-        errno = 0;
-        link(argv[1],argv[2]);
-        if (errno) {
+    if (-1==stat(argv[2],&s2)) {
+        errno=0;
+        if (-1==link(argv[1],argv[2])) {
             perror("link");
             return 1;
         }
-        unlink(argv[1]);
-        if (errno) {
+        if (-1==unlink(argv[1])) {
             perror("unlink");
             return 1;
         }
     }
-    else
-    {
+    else {
         if (s2.st_mode&S_IFDIR) {
-            char c[PATH_MAX];
-            strcpy(c, argv[2]);
-            strcat(c, "/");
-            strcat(c, argv[1]);
-            link(argv[1], c);
-            if (errno) {
+            string file_name=argv[2];
+            file_name+="/";
+            file_name.append(argv[1]);
+            if (-1==link(argv[1],file_name.c_str())) {
                 perror("link");
                 return 1;
             }
-            unlink(argv[1]);
-            if (errno) {
+            if (-1==(unlink(argv[1]))) {
                 perror("unlink");
                 return 1;
             }
