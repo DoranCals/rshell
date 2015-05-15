@@ -16,63 +16,61 @@ using namespace boost;
 
 //typedef tokenizer<char_separator<char> > tokInput;
 
+char RSF_VERBOSE = 1;
+
 // Runs a process with arguments.
 // The process name is specified by the first space-separated word.
+// Input and output redirection are handled here.
 // Returns the process's exit status, or 1 if the process didn't start.
-int runProcess(string lineInput)
+int runPipe(string lineInput)
 {
-	char_separator<char> spaces(" \t\n\r");
-	tokenizer<char_separator<char> > tokCommand(lineInput, spaces);
+	char_separator<char> redirectors(" \t\n\r", "<>");
+	tokenizer<char_separator<char> > tokCommand(lineInput, redirectors);
 
-	if (tokCommand.begin() == tokCommand.end() ) return 0; // do nothing
+	if (tokCommand.begin() == tokCommand.end() ) return 0;
 
-	if (*(tokCommand.begin() ) == "exit") exit(0); // quit rshell immediately
-
-	int argc = 1; // leave space for the null pointer
-	for (auto i = tokCommand.begin(); i != tokCommand.end(); i++)
-	{
-		argc++;
-	}
-
-	char** argv = new char*[argc];
-	{
-		int j = 0;
-		for (auto i = tokCommand.begin(); i != tokCommand.end(); i++)
-		{
-			argv[j] = new char[i->size()+1];
-			for (unsigned k = 0; k < i->size(); k++)
-			{
-				argv[j][k] = i->c_str()[k];
-			}
-			argv[j][i->size()] = 0;
-			j++;
-		}
-		argv[j] = 0;
-	}
-
+	if (*(tokCommand.begin() ) == "exit") exit(0);
 	int f = fork();
-	if (f == -1) // no child was created
+	if (f == -1)
 	{
 		perror("fork");
 		return 1;
 	}
-	else if (f == 0) // child process
+	else if (f == 0)
 	{
+		int argc = 1; // leave space for the null pointer
+		for (auto i = tokCommand.begin(); (i != tokCommand.end() and true); i++)
+		{
+			argc++;
+		}
+	
+		char** argv = new char*[argc];
+		{
+			int j = 0;
+			for (auto i = tokCommand.begin(); i != tokCommand.end(); i++)
+			{
+				argv[j] = new char[i->size()+1];
+				for (unsigned k = 0; k < i->size(); k++)
+				{
+					argv[j][k] = i->c_str()[k];
+				}
+				argv[j][i->size()] = 0;
+				j++;
+			}
+			argv[j] = 0;
+		}
+
 		execvp(argv[0], argv);
 		// if execvp() didn't work, deallocate the c-strings passed into it
 		for (int i = 0; i < argc; i++)
 		{
-			//cout << "Deleting argv[" << i << "]... " << flush; // TESTING
 			delete [] argv[i];
-			//cout << "done." << endl; // TESTING
 		}
-		//cout << "Deleting argv... " << endl; // TESTING
 		delete [] argv;
-		//cout << "done."; // TESTING
 		perror("execvp");
 		return 1;
 	}
-	else // parent process
+	else
 	{
 		int status = 1;
 		int p = wait(&status);
@@ -90,13 +88,36 @@ int main(int argc, char** argv)
 	char_separator<char> connectors(" \t\n\r", ";#&|");
 	string lineInput;
 	int prevStatus = 0;
+	char flags = 0;
+
+	if (argc > 1)
+	{
+		// Look for flags
+		for (int i = 1; i < argc; i++)
+		{
+			if (argv[i][0] == '-')
+			{
+				for (size_t j = 1; j < strlen(argv[i]); j++)
+				{
+					if (argv[i][j] == 'v') flags = flags | RSF_VERBOSE;
+				}
+			}
+		}
+	}
 
 	while (true)
 	{
 		// Prompt; displays username and hostname
+		char* username;
 		char hostname[64];
-		if (gethostname(hostname, 64) == 0)
-			cout << getlogin() << "@" << hostname;
+		username = getlogin();
+		if (username == NULL) perror("getlogin");
+		if (gethostname(hostname, 64) ) perror("gethostname");
+		if (username)
+		{
+			cout << username;
+			if (!errno) cout << "@" << hostname;
+		}
 		cout << "$ ";
 
 		string thisCommand = "";
@@ -117,7 +138,7 @@ int main(int argc, char** argv)
 			// If a connector is found, execute the stored command.
 			if (*i == "&" or *i == "|" or *i == ";" or *i == "#" )
 			{
-				prevStatus = runProcess(thisCommand);
+				prevStatus = runPipe(thisCommand);
 				thisCommand = "";
 				if (*i == "&" or *i == "|")
 				{
