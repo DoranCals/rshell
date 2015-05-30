@@ -240,21 +240,10 @@ void displayPrompt(ostream &out)
 	return;
 }
 
-/*
-void killChild(int x)
-{
-	if (x == SIGINT)
-	{
-		
-	}
-}
-*/
-
 int main(int argc, char** argv)
 {
-	//sigInterrupt.sa_handler = killChild;
 	sigInterrupt.sa_handler = SIG_IGN;
-	sigInterrupt.sa_handler = SIG_DFL;
+	sigInterruptOld.sa_handler = SIG_DFL;
 	sigaction(SIGINT, &sigInterrupt, &sigInterruptOld);
 
 	char_separator<char> connectors(" \t\n\r", ";#&|");
