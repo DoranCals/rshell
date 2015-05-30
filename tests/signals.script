@@ -1,0 +1,44 @@
+dcals001@cs100:~/CS100/rshell (signal) $ bin/rshell
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ # cd within this dir
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ cd src
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell/src $ # cd back up
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell/src $ cd ..
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ # cd to non-existent dir
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ cd ergbyuebuvn
+chdir: No such file or directory
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ # cd up twice
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ cd ../..
+dcals001@hammer.cs.ucr.edu: ~ $ # cd to previous dir
+dcals001@hammer.cs.ucr.edu: ~ $ cd -
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ # again
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ cd -
+dcals001@hammer.cs.ucr.edu: ~ $ # once more
+dcals001@hammer.cs.ucr.edu: ~ $ cd -
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ # cd to root  
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell $ cd /
+dcals001@hammer.cs.ucr.edu: / $ # cd back home
+dcals001@hammer.cs.ucr.edu: / $ cd
+dcals001@hammer.cs.ucr.edu: ~ $ # cd down thrice 
+dcals001@hammer.cs.ucr.edu: ~ $ cd CS100/rshell/src
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell/src $ ls
+listFilesMetadata.h  ls.cpp  main.cpp  mv.cpp  rm.cpp
+dcals001@hammer.cs.ucr.edu: ~/CS100/rshell/src $ cd /
+dcals001@hammer.cs.ucr.edu: / $ ls
+bin     class                       etc    lib         media  net   root     srv  usr
+boot    C:\nppdf32Log\debuglog.txt  extra  lib64       misc   opt   sbin     sys  var
+cgroup  dev                         home   lost+found  mnt    proc  selinux  tmp
+dcals001@hammer.cs.ucr.edu: / $ cd                         
+dcals001@hammer.cs.ucr.edu: ~ $ # cd to bad dir twice
+dcals001@hammer.cs.ucr.edu: ~ $ cd  rhbgiuenv 
+chdir: No such file or directory
+dcals001@hammer.cs.ucr.edu: ~ $ cd wcjfhunngtr g
+chdir: No such file or directory
+dcals001@hammer.cs.ucr.edu: ~ $ # previous dir is still maintained
+dcals001@hammer.cs.ucr.edu: ~ $ cd -
+dcals001@hammer.cs.ucr.edu: / $ cd
+dcals001@hammer.cs.ucr.edu: ~ $ # ctrl-C with no process running
+dcals001@hammer.cs.ucr.edu: ~ $ ^C
+dcals001@hammer.cs.ucr.edu: ~ $ # ctrl-C with process running
+dcals001@hammer.cs.ucr.edu: ~ $ cat
+^Cdcals001@hammer.cs.ucr.edu: ~ $ sleep 10
+^Cdcals001@hammer.cs.ucr.edu: ~ $ exit
