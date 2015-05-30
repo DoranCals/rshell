@@ -33,8 +33,6 @@ undefined behavior will result.
 
 #### KNOWN ISSUES
 
-`cd` will break if a bad path is entered. Restart the shell and try again.
-
 If `Ctrl-C` is entered while the shell is idle, the user must press `ENTER` to clear the shell input.
 
 If `Ctrl-D` is entered, Rshell will attempt to run the current command before exiting.

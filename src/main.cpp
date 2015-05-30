@@ -37,6 +37,7 @@ int changeDir(const char* n)
 		if (!homePath)
 		{
 			perror("getenv $HOME");
+			errno = 0;
 			return 3;
 		}
 		strcpy(newPath, homePath);
@@ -48,6 +49,7 @@ int changeDir(const char* n)
 		if (!oldPath)
 		{
 			perror("getenv $OLDPWD");
+			errno = 0;
 			return 3;
 		}
 		strcpy(newPath, oldPath);
@@ -66,12 +68,14 @@ int changeDir(const char* n)
 	{
 		cerr << "// Store the old path first\n";
 		perror("getenv $PWD");
+		errno = 0;
 		return 3;
 	}
 
 	if (chdir(newPath) == -1)
 	{
 		perror("chdir");
+		errno = 0;
 		return 1;
 	}
 
@@ -82,6 +86,7 @@ int changeDir(const char* n)
 	{
 		cerr << "// Record the old path AFTER changing dir\n";
 		perror("setenv $OLDPWD");
+		errno = 0;
 		return 2;
 	}
 	// Now record the new path
@@ -90,12 +95,14 @@ int changeDir(const char* n)
 	{
 		cerr << "// Now record the new path\n";
 		perror("getcwd");
+		errno = 0;
 		return 4;
 	}
 	setenv("PWD", currentPath, 1);
 	if (errno)
 	{
 		perror("setenv $PWD");
+		errno = 0;
 		return 2;
 	}
 
@@ -161,6 +168,7 @@ int runProcess(string lineInput)
 	if (f == -1) // no child was created
 	{
 		perror("fork");
+		errno = 0;
 		return 1;
 	}
 	else if (f == 0) // child process
@@ -174,6 +182,7 @@ int runProcess(string lineInput)
 		}
 		delete [] argv;
 		perror("execvp");
+		errno = 0;
 		return 1;
 	}
 	else // parent process
@@ -190,6 +199,7 @@ int runProcess(string lineInput)
 		if (p == -1)
 		{
 			perror("wait");
+			errno = 0;
 			return 1;
 		}
 		return status;
@@ -202,13 +212,19 @@ void displayPrompt(ostream &out)
 
 	char* username = getenv("LOGNAME");
 	if (!username)
+	{
 		perror("getenv $LOGNAME");
+		errno = 0;
+	}
 	else
 		out << username;
 
 	char hostname[64];
 	if (gethostname(hostname, 64) )
+	{
 		perror("hostname");
+		errno = 0;
+	}
 	else
 		out << '@' << hostname;
 
@@ -217,7 +233,10 @@ void displayPrompt(ostream &out)
 	// display working directory
 	char* workDir = getenv("PWD");
 	if (!workDir)
+	{
 		perror("getenv $PWD");
+		errno = 0;
+	}
 	else
 	{
 		out << ": ";
@@ -225,6 +244,7 @@ void displayPrompt(ostream &out)
 		if (!homePath)
 		{
 			perror("getenv $HOME");
+			errno = 0;
 		}
 		else if (strncmp(homePath, workDir, strlen(homePath) ) == 0)
 		{
@@ -245,6 +265,11 @@ int main(int argc, char** argv)
 	sigInterrupt.sa_handler = SIG_IGN;
 	sigInterruptOld.sa_handler = SIG_DFL;
 	sigaction(SIGINT, &sigInterrupt, &sigInterruptOld);
+	if (errno)
+	{
+		perror("sigaction");
+		exit(1);
+	}
 
 	char_separator<char> connectors(" \t\n\r", ";#&|");
 	string lineInput;
