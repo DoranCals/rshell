@@ -5,19 +5,19 @@ all: rshell ls rm mv
 
 rshell:
 	mkdir -p bin
-	g++ $(FLAGS) -o bin/rshell src/main.cpp
+	g++ $(FLAGS) -g -o bin/rshell src/main.cpp
 
 ls:
 	mkdir -p bin
-	g++ $(FLAGS) -o bin/ls src/ls.cpp
+	g++ $(FLAGS) -g -o bin/ls src/ls.cpp
 
 rm:
 	mkdir -p bin
-	g++ $(FLAGS) -o bin/rm src/rm.cpp
+	g++ $(FLAGS) -g -o bin/rm src/rm.cpp
 
 mv:
 	mkdir -p bin
-	g++ $(FLAGS) -o bin/mv src/mv.cpp
+	g++ $(FLAGS) -g -o bin/mv src/mv.cpp
 
 clean:
 	rm -rf bin

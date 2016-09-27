@@ -20,74 +20,73 @@
 
 using namespace std;
 
+void handle_flags(const int &argc, char **argv, bool &flag_r) {
+    for (int i=0;i<argc;i++)
+        if (strcmp(argv[i],"-r")==0)
+            flag_r=true;
+}
+
+void rm_dirs(const char *dir_name) {
+    DIR *dirp;
+    if (NULL==(dirp=opendir(dir_name))) {
+        perror("opendir");
+        return;
+    }
+    struct dirent *filespecs;
+    errno=0;
+    while (NULL!=(filespecs=readdir(dirp))) {
+        if (strcmp(filespecs->d_name,".")==0||strcmp(filespecs->d_name,"..")==0)
+            continue;
+        string file_name=dir_name;
+        file_name+="/";
+        file_name.append(filespecs->d_name);
+        struct stat s;
+        if (-1==stat(file_name.c_str(),&s)) {
+            perror("stat");
+            continue;
+        }
+        if (s.st_mode&S_IFDIR)
+            rm_dirs(file_name.c_str());
+        else if (-1==unlink(file_name.c_str())) {
+            perror("unlink");
+            continue;
+        }
+    }
+    if (errno) {
+        perror("readdir");
+        return;
+    }
+    if (-1==rmdir(dir_name)) {
+        perror("rmdir");
+        return;
+    }
+}
+
 int rmMain(int argc, char** argv)
 {
-    bool flag_r=false;
-    vector<char *> v;
-    for (int i=1;i<argc;i++) {
-        if (argv[i][0] == '-')
-        {
-            for (unsigned j=1;j<strlen(argv[i]);j++) {
-                if (argv[i][j]=='r')
-                    flag_r=true;
-            }
-        }
-        else v.push_back(argv[i]);
-    }
-    if (v.empty()) {
-        cerr << "rm: missing operand\n";
+    if (argc<2) {
+        cerr<<"rm: missing operand\n";
         return 1;
     }
-    for (unsigned i=0;i<v.size();i++) {
+    bool flag_r=false;
+    handle_flags(argc,argv,flag_r);
+    for (int i=1;i<argc;i++) {
+        if (*argv[i]=='-')
+            continue;
         struct stat s;
-        stat(v.at(i),&s);
-        if (errno) {
-           perror("stat");
-           errno=0;
-           continue;
+        if (-1==stat(argv[i],&s)) {
+            perror("stat");
+            continue;
         }
         if (s.st_mode&S_IFDIR) {
-            if (flag_r) {
-                DIR *dirp=opendir(v.at(i));
-                if (dirp==NULL) {
-                    perror("opendir");
-                    errno=0;
-                    continue;
-                }
-                struct dirent *f;
-                while ((f=readdir(dirp)))
-                {
-                    if (errno) {
-                        perror("readdir");
-                        errno=0;
-                        break;
-                    }
-                    char recursMain[8];
-                    strcpy(recursMain, "rm");
-                    char recursFlags[8];
-                    strcpy(recursFlags, "-r");
-                    char recursFile[PATH_MAX];
-                    strcpy(recursFile, f->d_name);
-                    char* recursArgs[3];
-                    recursArgs[0] = recursMain;
-                    recursArgs[1] = recursFlags;
-                    recursArgs[2] = recursFile;
-                    rmMain(3,recursArgs);
-                }
-                closedir(dirp);
-                if (errno) {
-                    perror("closedir");
-                    errno=0;
-                    continue;
-                }
+            if (!flag_r) {
+                cerr<<"rm: cannot remove `"<<argv[i]<<"': Is a directory\n";
+                continue;
             }
-            else {
-                cerr<<v.at(i)<< ": Is a directory but -r not set\n";
-            }
+            rm_dirs(argv[i]);
         }
-        if (-1==unlink(v.at(i))) {
+        else if (-1==unlink(argv[i])) {
             perror("unlink");
-            errno=0;
             continue;
         }
     }
